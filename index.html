@@ -1,31 +1,112 @@
-<head>
-    <!-- This will show up on the tab in your browser -->
-    <title>My Site</title>
 
-    <!-- This links your css file to the html -->
-    <link rel="stylesheet" type="text/css" href="index.css">
-  
-     <script>
-        !function(f,b,e,v,n,t,s)
-        {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-            n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-            if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-            n.queue=[];t=b.createElement(e);t.async=!0;
-            t.src=v;s=b.getElementsByTagName(e)[0];
-            s.parentNode.insertBefore(t,s)}(window, document,'script',
-            'https://connect.facebook.net/en_US/fbevents.js');
-        fbq('init', '244398693813486');
-        fbq('track', 'PageView');
-    </script>
-    <noscript><img height="1" width="1" style="display:none"
-                   src="https://www.facebook.com/tr?id=244398693813486&ev=PageView&noscript=1"/></noscript>
-    <!-- End Facebook Pixel Code -->
-</head>
+<html>
+	<head>
+		<title>Pixel Manual Test</title>
+		<link rel="stylesheet" href="https://unpkg.com/mvp.css">
+		<style>
+			.is-hidden {
+				display: none;
+			}
+		</style>
+		<script>
+			!function(f,b,e,v,n,t,s)
+			{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+			n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+			if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+			n.queue=[];t=b.createElement(e);t.async=!0;
+			t.src=v;s=b.getElementsByTagName(e)[0];
+			s.parentNode.insertBefore(t,s)}(window, document,'script',
+			'https://connect.facebook.net/en_US/fbevents.js');
+		</script>
+	</head>
+	<body>
+		<h1>Pixel test</h1>
+		<h2 id="pixelIDHeader"></h2>
+		<div id="needPixelID" class="is-hidden" >
+			<form action="">
+				<label for="pixelID">Pixel ID</label>
+				<input type="text" name="pixelID" id="pixelID"/>
+				<input type="submit" value="Submit"/>
+			</form>
+		</div>
+		<div id="havePixelID" class="is-hidden" >
+			<button name="SubscribedButtonClick" class="eventSender">Click me to fire a SubscribedButtonClick event</button>
+			<button onclick="fbq('track', 'Purchase', {
+			      order_id: 'test_order_id',
+			      value: 115.00,
+			      currency: 'USD',
+			      content_ids: ['301', '401'],
+			      contents: [
+				{
+				  id: '301',
+				  quantity: 1,
+				  item_price: 3
+				},
+				{
+				  id: '401',
+				  quantity: 2
+				}],
+			      content_type: 'product',
+			      compared_product: 'recommended-banner-shoes',  // custom property
+			      delivery_category: 'in_store'
+			});" name="Purchase" class="eventSender">
+			    Click me to fire a Purchase event
+			</button>
+			<button onclick="fbq('track', 'Purchase', {
+				  order_id: 'test_order_id',
+				  value: 115.00,
+				  currency: 'USD',
+				  content_ids: ['301', '401'],
+				  contents: [
+					{
+					  id: '301',
+					  quantity: 1,
+					  item_price: 3
+					},
+					{
+					  id: '401',
+					  quantity: 2
+					}],
+				  content_type: 'product',
+				  compared_product: 'recommended-banner-shoes',  // custom property
+				  delivery_category: 'in_store'
+			});
+			" id="navigateButton">
+				Click me to fire a Purchase event and then navigate to another page
+			</button>
+			<h3>Sent events</h3>
+			<div id="sentEventsContainer"/>
+		</div>
+		<script>
+			let pixelID = new URLSearchParams(window.location.search).get("pixelID")
+			if (pixelID == null) {
+				let needPixelID = document.getElementById("needPixelID")
+				needPixelID.classList.remove("is-hidden")
+			} else {
+				fbq('init', pixelID)
+				fbq('track', 'PageView')
+				let havePixelID = document.getElementById("havePixelID")
+				havePixelID.classList.remove("is-hidden")
+			}
 
-<body>
-    <!-- This is the start of the "About" section -->
-    <div class="about">
-        <h1>About</h1>
-        <p>Welcome to my spot on the Internet</p>
-    </div>
-</body>
+			let pixelIDHeader = document.getElementById("pixelIDHeader")
+			pixelIDHeader.innerHTML = pixelID
+
+			let navigateButton = document.getElementById("navigateButton")
+			navigateButton.addEventListener("click", (event) => {
+				setTimeout(()=>window.open ('manualTest2.html?pixelID=' + pixelID,'_self',false),100);
+			})
+
+
+			let buttons = Array.from(document.getElementsByClassName("eventSender"))
+			let sentEventsContainer = document.getElementById("sentEventsContainer")
+			buttons.forEach((button) => {
+				button.addEventListener("click", (event) => {
+					let elt = document.createElement("p")
+					elt.innerHTML = button.name
+					sentEventsContainer.prepend(elt)
+				})
+			})
+		</script>
+	</body>
+</html>
